@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/jackc/pgx/v5/stdlib"    // Import the pgx driver
+	_ "github.com/joho/godotenv/autoload" // Load the .env file
 )
 
 // Service represents a service that interacts with a database.
