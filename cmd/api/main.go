@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"WB_GO_L0/internal/kafka"
 	"WB_GO_L0/internal/server"
 )
 
@@ -32,7 +33,6 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
-
 	server := server.NewServer()
 
 	done := make(chan bool, 1)
@@ -42,6 +42,13 @@ func main() {
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s", err))
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err = kafka.Consume(ctx)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	<-done
