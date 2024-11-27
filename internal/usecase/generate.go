@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"WB_GO_L0/internal/entity"
+	"WB_GO_L0/internal/kafka"
 
 	"github.com/brianvoe/gofakeit/v7"
 )
@@ -20,13 +21,12 @@ func GenerateAndSendMessages(ctx context.Context, n int) error {
 			return err
 		}
 
-		// TODO: send message to kafka
-		// err = delivery.SendMessage(ctx, ord, cfg)
-		// if err != nil {
-		// 	return err
-		// }
+		err = kafka.SendMessage(ctx, &ord)
+		if err != nil {
+			return err
+		}
 
-		fmt.Println("Sent message: %s", ord.String()) // TODO: change to slog
+		fmt.Printf("\n Sent message: %s", ord.String()) // TODO: change to slog
 	}
 
 	return nil

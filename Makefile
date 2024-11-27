@@ -7,6 +7,9 @@ build:
 run:
 	@go run cmd/api/main.go
 
+send:
+	@go run cmd/publish/main.go -n=3
+
 db:
 	docker compose up --build
 
