@@ -7,10 +7,11 @@ build:
 run:
 	@go run cmd/api/main.go
 
+n ?= 1
 send:
-	@go run cmd/publish/main.go -n=3
+	@go run cmd/publish/main.go -n=$(n)
 
-db:
+infra:
 	docker compose up --build
 
 test:

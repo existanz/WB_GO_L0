@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"strings"
@@ -11,13 +12,15 @@ import (
 )
 
 var (
-	brokers = os.Getenv("BROKERS")
+	brokers = strings.Split(os.Getenv("BROKERS"), ",")
 	topic   = os.Getenv("TOPIC")
 )
 
 func Consume(ctx context.Context) error {
-	brokersArr := strings.Split(brokers, ",")
-	return consume(ctx, brokersArr, topic)
+	if len(brokers) == 0 || topic == "" {
+		return errors.New("BROKERS and TOPIC environment variables must be set")
+	}
+	return consume(ctx, brokers, topic)
 }
 
 func consume(ctx context.Context, brokers []string, topic string) error {
@@ -25,6 +28,7 @@ func consume(ctx context.Context, brokers []string, topic string) error {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokersArr,
 		Topic:   topic,
+		GroupID: "group1",
 	})
 	defer reader.Close()
 
@@ -38,6 +42,9 @@ func consume(ctx context.Context, brokers []string, topic string) error {
 				return err
 			}
 			log.Printf("message at topic:%v partition:%v offset:%v	key:%s value:%s", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value) // Process the message here
+			if err := reader.CommitMessages(ctx, msg); err != nil {
+				log.Fatal("Failed to commit message:", err)
+			}
 		}
 	}
 }
