@@ -11,6 +11,12 @@ services:
     volumes:
       - psql_volume_bp:/var/lib/postgresql/data
 
+  redis_bp:
+    image: redis:7.2.4
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+
   zoo1:
     image: confluentinc/cp-zookeeper:7.3.2
     hostname: zoo1
@@ -23,6 +29,8 @@ services:
       ZOOKEEPER_SERVERS: zoo1:2888:3888
 
   kafka1:
+    depends_on: 
+      - zoo1
     image: confluentinc/cp-kafka:7.3.2
     hostname: kafka1
     container_name: kafka1

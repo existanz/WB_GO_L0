@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"WB_GO_L0/internal/database"
 	"WB_GO_L0/internal/kafka"
 	"WB_GO_L0/internal/server"
 
@@ -45,7 +46,7 @@ func main() {
 
 	eg.Go(func() error { return gracefulShutdown(server, cancel) })
 	eg.Go(server.ListenAndServe)
-	eg.Go(func() error { return kafka.Consume(ctx) })
+	eg.Go(func() error { return kafka.Consume(ctx, database.New()) })
 
 	if err := eg.Wait(); err != nil {
 		fmt.Println(err)

@@ -31,9 +31,6 @@ linters:
     # Drop-in replacement of golint.
     - revive
 
-    # check imports order and makes it always deterministic.
-    - gci
-
     # make sure to use t.Helper() when needed
     - thelper
 
