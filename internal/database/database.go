@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ import (
 // Service represents a service that interacts with a database.
 type Service interface {
 	Close() error
-	GetOrder(id string) (string, error)
+	GetOrder(id string) (entity.Order, error)
 	GetOrdersPlain() ([]string, error)
 	SaveOrderPlain(order string) error
 }
@@ -91,10 +92,15 @@ func (s *service) SaveOrderPlain(order string) error {
 	return nil
 }
 
-func (s *service) GetOrder(id string) (string, error) {
-	order, err := s.cashe.Get(ctx, id).Result()
+func (s *service) GetOrder(id string) (entity.Order, error) {
+	var order entity.Order
+	orderStr, err := s.cashe.Get(ctx, id).Result()
 	if err != nil {
-		return "", err
+		return order, err
+	}
+	err = json.Unmarshal([]byte(orderStr), &order)
+	if err != nil {
+		return order, err
 	}
 	return order, nil
 }

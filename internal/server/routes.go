@@ -1,7 +1,9 @@
 package server
 
 import (
+	"html/template"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +13,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.GET("/orders", s.GetOrdersHandler)
 	r.GET("/orders/:id", s.GetOrderHandler)
+
+	r.SetFuncMap(template.FuncMap{
+		"Int": func(val int) int { return val },
+	})
+
+	r.LoadHTMLGlob("web/template/*")
+
+	r.GET("/web/orders/:id", s.getOrderHTML)
 
 	return r
 }
@@ -30,5 +40,28 @@ func (s *Server) GetOrderHandler(c *gin.Context) {
 		c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	c.Data(http.StatusOK, gin.MIMEJSON, []byte(order))
+	c.JSON(http.StatusOK, order)
+}
+
+func (s *Server) getOrderHTML(c *gin.Context) {
+	orderID := c.Param("id")
+	order, err := s.db.GetOrder(orderID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Order not found"})
+		return
+	}
+
+	var prevOrderID, nextOrderID string
+	if orderIDInt, err := strconv.Atoi(orderID); err == nil {
+		if orderIDInt > 1 {
+			prevOrderID = strconv.Itoa(orderIDInt - 1)
+		}
+		nextOrderID = strconv.Itoa(orderIDInt + 1)
+	}
+
+	c.HTML(http.StatusOK, "order.html", gin.H{
+		"Order":       order,
+		"PrevOrderID": prevOrderID,
+		"NextOrderID": nextOrderID,
+	})
 }
