@@ -17,7 +17,8 @@ import (
 // Service represents a service that interacts with a database.
 type Service interface {
 	Close() error
-	SaveOrder(order entity.Order) error
+	GetOrder(id string) (string, error)
+	GetOrdersPlain() ([]string, error)
 	SaveOrderPlain(order string) error
 }
 
@@ -88,6 +89,32 @@ func (s *service) SaveOrderPlain(order string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *service) GetOrder(id string) (string, error) {
+	order, err := s.cashe.Get(ctx, id).Result()
+	if err != nil {
+		return "", err
+	}
+	return order, nil
+}
+
+// GetOrdersPlain returns all orders as slice of strings from the database
+func (s *service) GetOrdersPlain() ([]string, error) {
+	var orders []string
+	rows, err := s.db.Query("SELECT order_json FROM orders_plain")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var order string
+		err := rows.Scan(&order)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
 // RestoreCache restores the cache from the database

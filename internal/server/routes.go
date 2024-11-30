@@ -9,14 +9,26 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
-	r.GET("/", s.BlankHandler)
+	r.GET("/orders", s.GetOrdersHandler)
+	r.GET("/orders/:id", s.GetOrderHandler)
 
 	return r
 }
 
-func (s *Server) BlankHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+func (s *Server) GetOrdersHandler(c *gin.Context) {
+	orders, err := s.db.GetOrdersPlain()
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+	}
+	c.JSON(http.StatusOK, orders)
+}
 
-	c.JSON(http.StatusOK, resp)
+func (s *Server) GetOrderHandler(c *gin.Context) {
+	id := c.Param("id")
+	order, err := s.db.GetOrder(id)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	c.Data(http.StatusOK, gin.MIMEJSON, []byte(order))
 }
