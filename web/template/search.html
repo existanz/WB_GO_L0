@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ {{ .Order.OrderUID }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <form action="/search" method="get">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" name="order_uid" placeholder="Введите номер заказа">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">Поиск</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {{ if .isFind }}
+    <div class="row">
+      <h1>Заказ: {{ .Order.OrderUID }}</h1>
+    </div>
+    <div class="row">
+
+      <div class="col">
+        <h2>Данные для доставки</h2>
+        <p><strong>Имя:</strong> {{ .Order.Delivery.Name }}</p>
+        <p><strong>Телефон:</strong> {{ .Order.Delivery.Phone }}</p>
+        <p><strong>Город:</strong> {{ .Order.Delivery.City }}</p>
+        <p><strong>Адрес:</strong> {{ .Order.Delivery.Address }}</p>
+        <p><strong>Регион:</strong> {{ .Order.Delivery.Region }}</p>
+        <p><strong>Почта:</strong> {{ .Order.Delivery.Email }}</p>
+
+        <h2>Данные о платеже</h2>
+        <p><strong>Транзакция:</strong> {{ .Order.Payment.Transaction }}</p>
+        <p><strong>Сумма:</strong> {{ .Order.Payment.Amount }} {{ .Order.Payment.Currency }}</p>
+        <p><strong>Способ оплаты:</strong> {{ .Order.Payment.Provider }}</p>
+      </div>
+      <div class="col">
+        <h2>Товары</h2>
+        <ul>
+          {{ range .Order.Items }}
+          <li>
+            <strong>Наименование:</strong> {{ .Name }} - {{ .Price }} ({{ .Size }}) <br>
+            <strong>Общая стоимость:</strong> {{ .TotalPrice }}
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+    </div>
+    {{ else if .UID }}
+    <div class="alert alert-danger" role="alert">
+      Заказ {{ .UID }} не найден
+    </div>
+  </div>
+  {{ end }}
+</body>
+
+</html>

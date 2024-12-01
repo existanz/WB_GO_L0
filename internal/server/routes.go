@@ -1,7 +1,7 @@
 package server
 
 import (
-	"html/template"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,13 +14,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/orders", s.GetOrdersHandler)
 	r.GET("/orders/:id", s.GetOrderHandler)
 
-	r.SetFuncMap(template.FuncMap{
-		"Int": func(val int) int { return val },
-	})
-
 	r.LoadHTMLGlob("web/template/*")
 
 	r.GET("/web/orders/:id", s.getOrderHTML)
+	r.GET("/search", s.getSearchHTML)
 
 	return r
 }
@@ -63,5 +60,28 @@ func (s *Server) getOrderHTML(c *gin.Context) {
 		"Order":       order,
 		"PrevOrderID": prevOrderID,
 		"NextOrderID": nextOrderID,
+	})
+}
+
+func (s *Server) getSearchHTML(c *gin.Context) {
+	uid := c.Query("order_uid")
+
+	if uid == "" {
+		c.HTML(http.StatusOK, "search.html", nil)
+		return
+	} else if uid[0] != '"' {
+		uid = fmt.Sprintf("\"%s\"", uid)
+	}
+
+	order, err := s.db.GetOrderByUID(uid)
+	isFind := true
+	if err != nil {
+		isFind = false
+	}
+
+	c.HTML(http.StatusOK, "search.html", gin.H{
+		"Order":  order,
+		"isFind": isFind,
+		"UID":    uid,
 	})
 }

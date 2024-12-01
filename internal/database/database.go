@@ -19,6 +19,7 @@ import (
 type Service interface {
 	Close() error
 	GetOrder(id string) (entity.Order, error)
+	GetOrderByUID(uid string) (entity.Order, error)
 	GetOrdersPlain() ([]string, error)
 	SaveOrderPlain(order string) error
 }
@@ -80,12 +81,17 @@ func (s *service) SaveOrder(order entity.Order) error {
 // SaveOrderPlain saves an order to the database as a json.
 func (s *service) SaveOrderPlain(order string) error {
 	var id string
-	err := s.db.QueryRow("INSERT INTO orders_plain (order_json) VALUES ($1) RETURNING id", order).Scan(&id)
+	var uid string
+	err := s.db.QueryRow("INSERT INTO orders_plain (order_json) VALUES ($1) RETURNING id, order_json->'order_uid'", order).Scan(&id, &uid)
 	if err != nil {
 		return err
 	}
 	// save to cashe
 	err = s.cashe.Set(ctx, id, order, 0).Err()
+	if err != nil {
+		return err
+	}
+	err = s.cashe.Set(ctx, uid, id, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -103,6 +109,15 @@ func (s *service) GetOrder(id string) (entity.Order, error) {
 		return order, err
 	}
 	return order, nil
+}
+
+func (s *service) GetOrderByUID(uid string) (entity.Order, error) {
+	var id string
+	id, err := s.cashe.Get(ctx, uid).Result()
+	if err != nil {
+		return entity.Order{}, err
+	}
+	return s.GetOrder(id)
 }
 
 // GetOrdersPlain returns all orders as slice of strings from the database
@@ -125,19 +140,24 @@ func (s *service) GetOrdersPlain() ([]string, error) {
 
 // RestoreCache restores the cache from the database
 func (s *service) RestoreCache() error {
-	rows, err := s.db.Query("SELECT id, order_json FROM orders_plain")
+	rows, err := s.db.Query("SELECT id, order_json->'order_uid', order_json FROM orders_plain")
 	if err != nil {
 		return err
 	}
 
 	for rows.Next() {
 		var id string
+		var uid string
 		var order string
-		err := rows.Scan(&id, &order)
+		err := rows.Scan(&id, &uid, &order)
 		if err != nil {
 			return err
 		}
 		err = s.cashe.Set(ctx, id, order, 0).Err()
+		if err != nil {
+			return err
+		}
+		err = s.cashe.Set(ctx, uid, id, 0).Err()
 		if err != nil {
 			return err
 		}

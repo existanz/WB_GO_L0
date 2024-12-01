@@ -1,45 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заказ {{ .Order.OrderUID }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
+
 <body>
-<div class="container">
-    <h1>Заказ: {{ .Order.OrderUID }}</h1>
-    <h2>Данные для доставки</h2>
-    <p><strong>Имя:</strong> {{ .Order.Delivery.Name }}</p>
-    <p><strong>Телефон:</strong> {{ .Order.Delivery.Phone }}</p>
-    <p><strong>Город:</strong> {{ .Order.Delivery.City }}</p>
-    <p><strong>Адрес:</strong> {{ .Order.Delivery.Address }}</p>
-    <p><strong>Регион:</strong> {{ .Order.Delivery.Region }}</p>
-    <p><strong>Почта:</strong> {{ .Order.Delivery.Email }}</p>
+    <div class="container">
+        <h1>Заказ: {{ .Order.OrderUID }}</h1>
+        <div class="row">
+            <div class="col">
+                <h2>Данные для доставки</h2>
+                <p><strong>Имя:</strong> {{ .Order.Delivery.Name }}</p>
+                <p><strong>Телефон:</strong> {{ .Order.Delivery.Phone }}</p>
+                <p><strong>Город:</strong> {{ .Order.Delivery.City }}</p>
+                <p><strong>Адрес:</strong> {{ .Order.Delivery.Address }}</p>
+                <p><strong>Регион:</strong> {{ .Order.Delivery.Region }}</p>
+                <p><strong>Почта:</strong> {{ .Order.Delivery.Email }}</p>
 
-    <h2>Данные о платеже</h2>
-    <p><strong>Транзакция:</strong> {{ .Order.Payment.Transaction }}</p>
-    <p><strong>Сумма:</strong> {{ .Order.Payment.Amount }} {{ .Order.Payment.Currency }}</p>
-    <p><strong>Способ оплаты:</strong> {{ .Order.Payment.Provider }}</p>
+                <h2>Данные о платеже</h2>
+                <p><strong>Транзакция:</strong> {{ .Order.Payment.Transaction }}</p>
+                <p><strong>Сумма:</strong> {{ .Order.Payment.Amount }} {{ .Order.Payment.Currency }}</p>
+                <p><strong>Способ оплаты:</strong> {{ .Order.Payment.Provider }}</p>
+            </div>
+            <div class="col">
+                <h2>Товары</h2>
+                <ul>
+                    {{ range .Order.Items }}
+                    <li>
+                        <strong>Наименование:</strong> {{ .Name }} - {{ .Price }} ({{ .Size }}) <br>
+                        <strong>Общая стоимость:</strong> {{ .TotalPrice }}
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+        </div>
 
-    <h2>Товары</h2>
-    <ul>
-        {{ range .Order.Items }}
-        <li>
-            <strong>Наименование:</strong> {{ .Name }} - {{ .Price }} ({{ .Size }}) <br>
-            <strong>Общая стоимость:</strong> {{ .TotalPrice }}
-        </li>
-        {{ end }}
-    </ul>
-
-    <div>
-        {{ if .PrevOrderID }}
+        <div>
+            {{ if .PrevOrderID }}
             <a class="btn btn-primary" href="/web/orders/{{ .PrevOrderID }}">Предыдущий</a>
-        {{ end }}
-        {{ if .NextOrderID }}
+            {{ end }}
+            {{ if .NextOrderID }}
             <a class="btn btn-primary" href="/web/orders/{{ .NextOrderID }}">Следующий</a>
-        {{ end }}
+            {{ end }}
+        </div>
     </div>
-</div>
 </body>
+
 </html>
