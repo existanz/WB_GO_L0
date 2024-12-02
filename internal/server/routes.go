@@ -97,6 +97,6 @@ func loggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
-		slog.Info(fmt.Sprintf("--> [%s] \"%s\" [%d] %s", c.Request.Method, c.Request.URL, c.Writer.Status(), time.Since(start)))
+		slog.Info("-->", "method", c.Request.Method, "url", c.Request.URL.Path, "status", c.Writer.Status(), "latency", time.Since(start))
 	}
 }

@@ -44,7 +44,7 @@ func consume(ctx context.Context, db database.Service, brokers []string, topic s
 			if err != nil {
 				return err
 			}
-			slog.Info("message at ", "topic", msg.Topic, "partition", msg.Partition, "offset", msg.Offset, "key", msg.Key, "value", msg.Value)
+			slog.Info("message at ", "topic", msg.Topic, "partition", msg.Partition, "offset", msg.Offset, "key", string(msg.Key))
 
 			err = db.SaveOrderPlain(string(msg.Value))
 			if err != nil {

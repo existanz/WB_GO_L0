@@ -37,6 +37,7 @@ func gracefulShutdown(apiServer *http.Server, cancelKafka context.CancelFunc) er
 }
 
 func main() {
+	setupLogger()
 	server := server.NewServer()
 
 	ctx, cancel := context.WithCancel(context.Background())
