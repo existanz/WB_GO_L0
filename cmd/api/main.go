@@ -47,7 +47,10 @@ func main() {
 
 	eg.Go(func() error { return gracefulShutdown(server, cancel) })
 	eg.Go(server.ListenAndServe)
-	eg.Go(func() error { return kafka.Consume(ctx, database.New()) })
+
+	kafkaReader := kafka.NewKafkaOrderConsumer(database.New())
+
+	eg.Go(func() error { return kafkaReader.Consume(ctx) })
 
 	if err := eg.Wait(); err != nil {
 		slog.Error(err.Error())
