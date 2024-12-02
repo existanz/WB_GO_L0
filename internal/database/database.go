@@ -59,7 +59,7 @@ func New() Service {
 		db:    db,
 		cashe: cache,
 	}
-	err = dbInstance.RestoreCache()
+	err = dbInstance.restoreCache()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func (s *service) GetOrdersPlain() ([]string, error) {
 }
 
 // RestoreCache restores the cache from the database
-func (s *service) RestoreCache() error {
+func (s *service) restoreCache() error {
 	slog.Debug("Restoring cache from database")
 	rows, err := s.db.Query("SELECT id, order_json->'order_uid', order_json FROM orders_plain")
 	if err != nil {

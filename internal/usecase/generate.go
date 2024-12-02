@@ -16,7 +16,7 @@ func GenerateAndSendMessages(ctx context.Context, n int) error {
 	} // Limit the number of messages to 100
 
 	for i := 0; i < n; i++ {
-		ord, err := GenerateStruct()
+		ord, err := generateStruct()
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func GenerateAndSendMessages(ctx context.Context, n int) error {
 	return nil
 }
 
-func GenerateStruct() (entity.Order, error) {
+func generateStruct() (entity.Order, error) {
 	ord := entity.Order{}
 	err := gofakeit.Struct(&ord)
 	return ord, err

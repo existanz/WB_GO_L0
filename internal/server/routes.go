@@ -12,11 +12,11 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.New()
-	r.Use(LoggerMiddleware())
+	r.Use(loggerMiddleware())
 	r.Use(gin.Recovery())
 
-	r.GET("/orders", s.GetOrdersHandler)
-	r.GET("/orders/:id", s.GetOrderHandler)
+	r.GET("/orders", s.getOrdersHandler)
+	r.GET("/orders/:id", s.getOrderHandler)
 
 	r.LoadHTMLGlob("web/template/*")
 
@@ -26,19 +26,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 	return r
 }
 
-func (s *Server) GetOrdersHandler(c *gin.Context) {
+func (s *Server) getOrdersHandler(c *gin.Context) {
 	orders, err := s.db.GetOrdersPlain()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 	c.JSON(http.StatusOK, orders)
 }
 
-func (s *Server) GetOrderHandler(c *gin.Context) {
+func (s *Server) getOrderHandler(c *gin.Context) {
 	id := c.Param("id")
 	order, err := s.db.GetOrder(id)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, order)
@@ -73,7 +75,8 @@ func (s *Server) getSearchHTML(c *gin.Context) {
 	if uid == "" {
 		c.HTML(http.StatusOK, "search.html", nil)
 		return
-	} else if uid[0] != '"' {
+	}
+	if uid[0] != '"' {
 		uid = fmt.Sprintf("\"%s\"", uid)
 	}
 
@@ -90,7 +93,7 @@ func (s *Server) getSearchHTML(c *gin.Context) {
 	})
 }
 
-func LoggerMiddleware() gin.HandlerFunc {
+func loggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
