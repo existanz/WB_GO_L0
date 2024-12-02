@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -43,7 +44,7 @@ func consume(ctx context.Context, db database.Service, brokers []string, topic s
 			if err != nil {
 				return err
 			}
-			log.Printf("message at topic:%v partition:%v offset:%v	key:%s value:%s", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
+			slog.Info("message at ", "topic", msg.Topic, "partition", msg.Partition, "offset", msg.Offset, "key", msg.Key, "value", msg.Value)
 
 			err = db.SaveOrderPlain(string(msg.Value))
 			if err != nil {

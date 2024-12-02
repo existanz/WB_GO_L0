@@ -2,14 +2,18 @@ package server
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+	r := gin.New()
+	r.Use(LoggerMiddleware())
+	r.Use(gin.Recovery())
 
 	r.GET("/orders", s.GetOrdersHandler)
 	r.GET("/orders/:id", s.GetOrderHandler)
@@ -84,4 +88,12 @@ func (s *Server) getSearchHTML(c *gin.Context) {
 		"isFind": isFind,
 		"UID":    uid,
 	})
+}
+
+func LoggerMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		slog.Info(fmt.Sprintf("--> [%s] \"%s\" [%d] %s", c.Request.Method, c.Request.URL, c.Writer.Status(), time.Since(start)))
+	}
 }

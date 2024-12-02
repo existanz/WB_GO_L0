@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -22,16 +22,16 @@ func gracefulShutdown(apiServer *http.Server, cancelKafka context.CancelFunc) er
 
 	<-ctx.Done()
 
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
+	slog.Info("shutting down gracefully, press Ctrl+C again to force")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := apiServer.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown with error: %v", err)
+		slog.Info("Server forced to shutdown with", "error", err)
 	}
 
 	cancelKafka()
-	log.Println("Server exiting")
+	slog.Info("Server exiting")
 
 	return nil
 }
@@ -49,7 +49,19 @@ func main() {
 	eg.Go(func() error { return kafka.Consume(ctx, database.New()) })
 
 	if err := eg.Wait(); err != nil {
-		fmt.Println(err)
+		slog.Error(err.Error()) // TODO: change to log.Fatal(err)
 	}
-	log.Println("Graceful shutdown complete.")
+	slog.Info("Graceful shutdown complete.")
+}
+
+func setupLogger() {
+	logLevel := new(slog.LevelVar)
+	options := &slog.HandlerOptions{Level: logLevel}
+
+	if os.Getenv("LOG_LEVEL") == "debug" {
+		logLevel.Set(slog.LevelDebug)
+		options.AddSource = true
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, options))
+	slog.SetDefault(logger)
 }

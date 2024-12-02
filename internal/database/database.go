@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"WB_GO_L0/internal/entity"
@@ -67,15 +68,8 @@ func New() Service {
 
 // Close closes the database connection.
 func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", database)
+	slog.Info("Disconnected from database", "db name", database)
 	return s.db.Close()
-}
-
-// SaveOrder saves an order to the database.
-func (s *service) SaveOrder(order entity.Order) error {
-	fmt.Println(order)
-	// TODO: implement
-	return nil
 }
 
 // SaveOrderPlain saves an order to the database as a json.
@@ -140,6 +134,7 @@ func (s *service) GetOrdersPlain() ([]string, error) {
 
 // RestoreCache restores the cache from the database
 func (s *service) RestoreCache() error {
+	slog.Debug("Restoring cache from database")
 	rows, err := s.db.Query("SELECT id, order_json->'order_uid', order_json FROM orders_plain")
 	if err != nil {
 		return err
@@ -162,5 +157,6 @@ func (s *service) RestoreCache() error {
 			return err
 		}
 	}
+	slog.Debug("Cache restored from database")
 	return nil
 }

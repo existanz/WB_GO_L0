@@ -26,7 +26,7 @@ func GenerateAndSendMessages(ctx context.Context, n int) error {
 			return err
 		}
 
-		fmt.Printf("\n Sent message: %s", ord.String()) // TODO: change to slog
+		fmt.Printf("\n Sent message: %s", ord.String())
 	}
 
 	return nil
