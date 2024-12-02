@@ -50,7 +50,7 @@ func main() {
 	eg.Go(func() error { return kafka.Consume(ctx, database.New()) })
 
 	if err := eg.Wait(); err != nil {
-		slog.Error(err.Error()) // TODO: change to log.Fatal(err)
+		slog.Error(err.Error())
 	}
 	slog.Info("Graceful shutdown complete.")
 }

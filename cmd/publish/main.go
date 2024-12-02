@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"WB_GO_L0/internal/usecase"
+	"WB_GO_L0/internal/usecases"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("Generating and sending %d messages...\n", n)
-	err := usecase.GenerateAndSendMessages(context.Background(), n)
+	err := usecases.GenerateAndSendMessages(context.Background(), n)
 	if err != nil {
 		log.Fatal(err)
 	}

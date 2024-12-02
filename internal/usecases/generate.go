@@ -1,10 +1,10 @@
-package usecase
+package usecases
 
 import (
 	"context"
 	"fmt"
 
-	"WB_GO_L0/internal/entity"
+	"WB_GO_L0/internal/entities"
 	"WB_GO_L0/internal/kafka"
 
 	"github.com/brianvoe/gofakeit/v7"
@@ -32,8 +32,8 @@ func GenerateAndSendMessages(ctx context.Context, n int) error {
 	return nil
 }
 
-func generateStruct() (entity.Order, error) {
-	ord := entity.Order{}
+func generateStruct() (entities.Order, error) {
+	ord := entities.Order{}
 	err := gofakeit.Struct(&ord)
 	return ord, err
 }

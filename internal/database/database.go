@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"os"
 
-	"WB_GO_L0/internal/entity"
+	"WB_GO_L0/internal/entities"
 
 	_ "github.com/jackc/pgx/v5/stdlib"    // Import the pgx driver
 	_ "github.com/joho/godotenv/autoload" // Load the .env file
@@ -19,8 +19,8 @@ import (
 // Service represents a service that interacts with a database.
 type Service interface {
 	Close() error
-	GetOrder(id string) (entity.Order, error)
-	GetOrderByUID(uid string) (entity.Order, error)
+	GetOrder(id string) (entities.Order, error)
+	GetOrderByUID(uid string) (entities.Order, error)
 	GetOrdersPlain() ([]string, error)
 	SaveOrderPlain(order string) error
 }
@@ -92,8 +92,8 @@ func (s *service) SaveOrderPlain(order string) error {
 	return nil
 }
 
-func (s *service) GetOrder(id string) (entity.Order, error) {
-	var order entity.Order
+func (s *service) GetOrder(id string) (entities.Order, error) {
+	var order entities.Order
 	orderStr, err := s.cashe.Get(ctx, id).Result()
 	if err != nil {
 		return order, err
@@ -105,11 +105,11 @@ func (s *service) GetOrder(id string) (entity.Order, error) {
 	return order, nil
 }
 
-func (s *service) GetOrderByUID(uid string) (entity.Order, error) {
+func (s *service) GetOrderByUID(uid string) (entities.Order, error) {
 	var id string
 	id, err := s.cashe.Get(ctx, uid).Result()
 	if err != nil {
-		return entity.Order{}, err
+		return entities.Order{}, err
 	}
 	return s.GetOrder(id)
 }

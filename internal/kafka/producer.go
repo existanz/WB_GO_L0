@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"WB_GO_L0/internal/entity"
+	"WB_GO_L0/internal/entities"
 
 	"github.com/segmentio/kafka-go"
 )
 
-func SendMessage(ctx context.Context, msg *entity.Order) error {
+func SendMessage(ctx context.Context, msg *entities.Order) error {
 	w := &kafka.Writer{
 		Addr:  kafka.TCP(brokers...),
 		Topic: topic,
