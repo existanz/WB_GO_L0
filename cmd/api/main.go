@@ -38,6 +38,7 @@ func gracefulShutdown(apiServer *http.Server, cancelKafka context.CancelFunc) er
 
 func main() {
 	setupLogger()
+	slog.Info("Starting service...")
 	server := server.NewServer()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -51,6 +52,8 @@ func main() {
 	kafkaReader := kafka.NewKafkaOrderConsumer(database.New())
 
 	eg.Go(func() error { return kafkaReader.Consume(ctx) })
+
+	slog.Info("Service started")
 
 	if err := eg.Wait(); err != nil {
 		slog.Error(err.Error())
