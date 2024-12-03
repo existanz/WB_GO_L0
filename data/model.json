@@ -1,40 +1,3 @@
-# WB_GO_L0
-Тестовое задание: демо сервис, отображающий данные о заказе. GO, Postgres, Kafka
-
-## Installation
-clone this repository
-run `go mod tidy` to download all dependencoes
-
-create .env file or copy .env.example
-
-## Launch
-use make commands
-
-`make infra`
-to run all infrastructure PostgreSQL, Redis, Zookeeper, Kafka
-
-`make migrate-up`
-to first migration to DB
-
-`make run`
-to launch service
-
-## Generate and send order to broker
-
-use
-`make send`
-to generate and send one message
-
-use
-`make send n=5`
-to generate and send five messages
-
-## REST API
-
-use `GET` request to `http://localhost:8080/orders/:id`
-to get json
-
-```json
 {
   "order_uid": "b563feb7b2b84b6test",
   "track_number": "WBILMTESTTRACK",
@@ -84,14 +47,3 @@ to get json
   "date_created": "2021-11-26T06:22:19Z",
   "oof_shard": "1"
 }
-```
-
-## Web interfaces
-
-reach `http://localhost:8080/web/orders/1` from browser
-to get web interface to list orders with pagination
-
-
-reach `http://localhost:8080/search` from browser
-to get web interface to search order by its uid
-
